@@ -1,0 +1,36 @@
+// For format details, see https://aka.ms/devcontainer.json. For config options, see the
+// README at: https://github.com/devcontainers/templates/tree/main/src/python
+{
+  "name": "Python 3",
+  "dockerComposeFile": "compose.yaml",
+  "service": "app",
+  "workspaceFolder": "/workspaces/workspace",
+  "features": {
+    "ghcr.io/devcontainers-contrib/features/poetry:2": {
+      "version": "1.8.2"
+    },
+    "ghcr.io/devcontainers-contrib/features/npm-package:1": {
+      "package": "aicommits"
+    }
+  },
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "charliermarsh.ruff",
+        "ms-python.mypy-type-checker",
+        "esbenp.prettier-vscode",
+        "tamasfe.even-better-toml",
+        "bierner.markdown-preview-github-styles",
+        "bierner.markdown-mermaid",
+        "hediet.vscode-drawio"
+      ]
+    }
+  },
+  "postCreateCommand": ".devcontainer/post_create.sh"
+
+  // Use 'forwardPorts' to make a list of ports inside the container available locally.
+  // "forwardPorts": [],
+
+  // Uncomment to connect as root instead. More info: https://aka.ms/dev-containers-non-root.
+  // "remoteUser": "root"
+}

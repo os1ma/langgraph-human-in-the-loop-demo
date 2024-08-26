@@ -1,0 +1,6 @@
+services:
+  app:
+    image: mcr.microsoft.com/devcontainers/python:1-3.11-bookworm
+    command: sleep infinity
+    volumes:
+      - ..:/workspaces/workspace:cached

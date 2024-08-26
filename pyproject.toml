@@ -1,0 +1,22 @@
+[tool.poetry]
+name = "python-project-template"
+version = "0.1.0"
+description = ""
+authors = ["Yuki Oshima <39944763+os1ma@users.noreply.github.com>"]
+readme = "README.md"
+package-mode = false
+
+[tool.poetry.dependencies]
+python = "^3.11"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.mypy]
+strict = true
+
+[tool.ruff.lint]
+select = ["ALL"]
+ignore = ["D", "ANN", "TRY", "EM", "FA", "SIM108", "S101", "RET505", "TCH002"]
