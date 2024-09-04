@@ -89,3 +89,6 @@ class HumanInTheLoopAgent:
 
     def _get_state(self, thread_id: str) -> StateSnapshot:
         return self.graph.get_state(config={"configurable": {"thread_id": thread_id}})
+
+    def mermaid_png(self) -> bytes:
+        return self.graph.get_graph().draw_mermaid_png()

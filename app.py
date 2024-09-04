@@ -45,6 +45,10 @@ def app() -> None:
         st.session_state.agent = HumanInTheLoopAgent()
     agent = st.session_state.agent
 
+    # グラフを表示
+    with st.sidebar:
+        st.image(agent.mermaid_png())
+
     # st.session_stateにthread_idを保存
     if "thread_id" not in st.session_state:
         st.session_state.thread_id = uuid4().hex
