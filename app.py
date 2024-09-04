@@ -56,11 +56,10 @@ def app() -> None:
     st.write(f"thread_id: {thread_id}")
 
     # ユーザーの指示を受け付ける
-    user_message = st.chat_input()
-    if user_message:
-        graph_input = {"messages": HumanMessage(content=user_message)}
+    human_message = st.chat_input()
+    if human_message:
         with st.spinner():
-            agent.run(graph_input, thread_id)
+            agent.handle_human_message(human_message, thread_id)
 
     # 会話履歴を表示
     messages = agent.get_messages(thread_id)
@@ -72,7 +71,7 @@ def app() -> None:
         # 承認されたらエージェントを実行
         if approved:
             with st.spinner():
-                agent.run(None, thread_id)
+                agent.handle_approve(thread_id)
             # 会話履歴を表示するためrerun
             st.rerun()
 

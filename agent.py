@@ -1,6 +1,7 @@
 from typing import Any, Literal
 
-from langchain_core.messages import AIMessage
+from langchain_core.messages import AIMessage, HumanMessage, ToolMessage
+from langchain_core.runnables import RunnableConfig
 from langchain_core.tools import tool
 from langchain_openai import ChatOpenAI
 from langgraph.checkpoint.memory import MemorySaver
@@ -72,10 +73,35 @@ class HumanInTheLoopAgent:
         else:
             return "call_llm"
 
-    def run(self, graph_input: dict | None, thread_id: str) -> None:
+    def handle_human_message(self, human_message: str, thread_id: str) -> None:
+        # 承認待ちの状態でhuman_messageが送信されるのは、ツールの呼び出しを修正したい状況
+        # そのため、次がhuman_review_nodeの場合、ツールの呼び出しが失敗したことをStateに追加
+        # 参考: https://langchain-ai.github.io/langgraph/how-tos/human_in_the_loop/review-tool-calls/#give-feedback-to-a-tool-call
+        if self.is_next_human_review_node(thread_id):
+            last_message = self.get_messages(thread_id)[-1]
+            tool_reject_message = ToolMessage(
+                content="Tool call rejected",
+                status="error",
+                name=last_message.tool_calls[0]["name"],
+                tool_call_id=last_message.tool_calls[0]["id"],
+            )
+            self.graph.update_state(
+                config=self._config(thread_id),
+                values={"messages": [tool_reject_message]},
+                as_node="human_review_node",
+            )
+
         for _ in self.graph.stream(
-            input=graph_input,
-            config={"configurable": {"thread_id": thread_id}},
+            input={"messages": [HumanMessage(content=human_message)]},
+            config=self._config(thread_id),
+            stream_mode="values",
+        ):
+            pass
+
+    def handle_approve(self, thread_id: str) -> None:
+        for _ in self.graph.stream(
+            input=None,
+            config=self._config(thread_id),
             stream_mode="values",
         ):
             pass
@@ -88,7 +114,10 @@ class HumanInTheLoopAgent:
         return len(graph_next) != 0 and graph_next[0] == "human_review_node"
 
     def _get_state(self, thread_id: str) -> StateSnapshot:
-        return self.graph.get_state(config={"configurable": {"thread_id": thread_id}})
+        return self.graph.get_state(config=self._config(thread_id))
+
+    def _config(self, thread_id: str) -> RunnableConfig:
+        return {"configurable": {"thread_id": thread_id}}
 
     def mermaid_png(self) -> bytes:
         return self.graph.get_graph().draw_mermaid_png()
